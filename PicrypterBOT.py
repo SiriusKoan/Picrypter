@@ -34,7 +34,7 @@ def initImage(update: Update, context: CallbackContext):
     #image.save("test.png","png")
 
 def main():
-    updater = Updater('5044835888:AAFHiSZo-LLZggskwgsORYFnBn-eTMTC2b8', use_context=True)
+    updater = Updater('PUT TOKEN', use_context=True)
     updater.dispatcher.add_handler(CommandHandler("start", start))
     updater.dispatcher.add_handler(CommandHandler("end", end))
     updater.dispatcher.add_handler(CommandHandler("encrypt",encrypt))
