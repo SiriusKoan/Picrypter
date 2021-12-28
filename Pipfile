@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 python-telegram-bot = "*"
 pillow = "*"
+numpy = "*"
+scipy = "*"
 
 [dev-packages]
 

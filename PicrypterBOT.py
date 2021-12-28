@@ -1,10 +1,11 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from telegram import Update, Bot ,Message
 import json
 import os
 import logging
 
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update, Bot ,Message
 from PIL import Image
+from functions import encrypt,decrypt
 
 # import telebot
 #from telebot import types
@@ -23,6 +24,7 @@ def start(update: Update, context: CallbackContext):
     /end - Clear all changes.
     /password - The random number sender and receiver choose.
     /encrypt - Encrypt your image according to your password.
+    /Decrypt - Decrypt your image according to your password.
     Image : The image you long to encrypt.
     """)
 
@@ -35,20 +37,31 @@ def end(update: Update, context: CallbackContext):
     password = "0"
     image = Image.new('RGB',size = (200,200))
 
-def encrypt(update: Update, context: CallbackContext):
+def Encrypt(update: Update, context: CallbackContext):
     global image
     global password
     if(password == "0"):
         update.message.reply_text("Please enter the password!")
         return
 
+    image = encrypt(image,password) #encrypt it
+    #init blank variable
+    end(update, context)
+
+def Decrypt(update: Update, context: CallbackContext):
+    global image
+    global password
+    if(password == "0"):
+        update.message.reply_text("Please enter the password!")
+        return
+
+    image = encrypt(image,password)
     context.bot.send_photo(chat_id=update.message.chat_id,photo=image)
 
     #this part is to encrypt the image that users give '''
 
     #init blank variable
     end(update, context)
-
 
 def Password(update: Update, context: CallbackContext):
     global password
@@ -64,10 +77,11 @@ def initImage(update: Update, context: CallbackContext):
     #image.save("test.png","png")
 
 def main():
-    updater = Updater('PUT TOKEN', use_context=True)
+    updater = Updater('5044835888:AAFHiSZo-LLZggskwgsORYFnBn-eTMTC2b8', use_context=True)
     updater.dispatcher.add_handler(CommandHandler("start", start))
     updater.dispatcher.add_handler(CommandHandler("end", end))
-    updater.dispatcher.add_handler(CommandHandler("encrypt",encrypt))
+    updater.dispatcher.add_handler(CommandHandler("encrypt",Encrypt))
+    updater.dispatcher.add_handler(CommandHandler("encrypt",Decrypt))
     updater.dispatcher.add_handler(MessageHandler(Filters.photo, initImage))
     updater.dispatcher.add_handler(CommandHandler("password",Password))
 
