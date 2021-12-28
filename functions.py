@@ -1,11 +1,13 @@
 from expand_matrix import M
 from scipy.linalg import null_space
 import numpy as np
+import PIL import Image
 
 def encrypt(image, password):
     key = convert_password_into_key(np.array([ord(c) for c in password]), len(password))
     matrix = make_transform_matrix(key)
     encrypted_image = transform_image(image, matrix)
+    encrypted_image = Image.fromarray(encrypted_image)
     return encrypted_image
 
 def decrypt(image, password):
@@ -13,6 +15,7 @@ def decrypt(image, password):
     matrix = make_transform_matrix(key)
     matrix = numpy.linalg.inv(matrix)
     decrypted_image = transform_image(image, matrix)
+    decrypted_image = Image.fromarray(decrypted_image)
     return decrypted_image
 
 def convert_password_into_key(password, length):
