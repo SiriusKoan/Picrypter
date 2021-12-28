@@ -8,6 +8,7 @@ python-telegram-bot = "*"
 pillow = "*"
 numpy = "*"
 scipy = "*"
+requests = "*"
 
 [dev-packages]
 
