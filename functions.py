@@ -10,7 +10,6 @@ def encrypt(image, password):
     encrypted_image = Image.fromarray(encrypted_image)
     return encrypted_image
 
-
 def decrypt(image, password):
     key = convert_password_into_key(password)
     matrix = make_transform_matrix(key)
@@ -40,11 +39,22 @@ def make_transform_matrix(key):
     return encrypt_matrix
 
 
-
 def check_independent(matrix):
     ns = null_space(matrix)
     return bool(ns)
 
 
 def transform_image(image, matrix):
-    return matrix @ image
+    size = image.shape
+    LEN = matrix.shape[0]
+    start_c, end_c, start_r, end_r = 0, LEN, 0, LEN
+    while end_c <= size[0]:
+        start_r, end_r = 0, LEN
+        while end_r <= size[1]:
+            for i in range(image.shape[2]):
+                image[start_c:end_c, start_r:end_r, i] = image[start_c:end_c, start_r:end_r, i] @ matrix
+            start_r += LEN
+            end_r += LEN
+        start_c += LEN
+        end_c += LEN
+    return image
