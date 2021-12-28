@@ -1,7 +1,7 @@
 from expand_matrix import M
 from scipy.linalg import null_space
 import numpy as np
-import PIL import Image
+from PIL import Image
 
 def encrypt(image, password):
     key = convert_password_into_key(np.array([ord(c) for c in password]), len(password))
@@ -33,7 +33,7 @@ def make_transform_matrix(key):
         a_col = key[start:end]
         tmp_mat = np.c_[encrypt_matrix, a_col]
         check = check_independent(tmp_mat)
-        if check: 
+        if check:
             encrypt_matrix = tmp_mat
         start += LEN
         end += LEN
