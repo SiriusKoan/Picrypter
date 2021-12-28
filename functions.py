@@ -35,10 +35,9 @@ def make_transform_matrix(key):
     return encrypt_matrix
 
 
-
 def check_independent(matrix):
     pass
 
 
 def transform_image(image, matrix):
-    pass
+    
