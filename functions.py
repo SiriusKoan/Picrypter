@@ -25,9 +25,10 @@ def convert_password_into_key(password, length):
 
 def make_transform_matrix(key):
     LEN = 100
-    start, end = 0, LEN
-    encrypt_matrix = np.array()
-    encrypt_matrix = np.reshape(LEN*1, dtype='i')
+    start, end = LEN, LEN*2
+    encrypt_matrix = np.array(key[0:LEN])
+    encrypt_matrix = np.reshape(LEN, 1)
+    
     while end <= 6000:
         a_col = key[start:end]
         tmp_mat = np.c_[encrypt_matrix, a_col]
