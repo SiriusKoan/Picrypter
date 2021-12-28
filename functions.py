@@ -1,22 +1,23 @@
+from expand_matrix import M
+from scipy.linalg import null_space
 import numpy as np
 
 def encrypt(image, password):
-    key = convert_password_into_key(password)
+    key = convert_password_into_key(np.array([ord(c) for c in password]), len(password))
     matrix = make_transform_matrix(key)
     encrypted_image = transform_image(image, matrix)
     return encrypted_image
 
-
 def decrypt(image, password):
     key = convert_password_into_key(password)
     matrix = make_transform_matrix(key)
-    # make inverse
+    matrix = numpy.linalg.inv(matrix)
     decrypted_image = transform_image(image, matrix)
     return decrypted_image
 
-
-def convert_password_into_key(password):
-    pass
+def convert_password_into_key(password, length):
+    submatrix = M[:, :length]
+    return submatrix @ password
 
 
 def make_transform_matrix(key):
@@ -36,8 +37,21 @@ def make_transform_matrix(key):
 
 
 def check_independent(matrix):
-    pass
+    ns = null_space(matrix)
+    return bool(ns)
 
 
 def transform_image(image, matrix):
-    
+    size = image.shape
+    LEN = matrix.shape[0]
+    start_c, end_c, start_r, end_r = 0, LEN, 0, LEN
+    while end_c <= size[0]:
+        start_r, end_r = 0, LEN
+        while end_r <= size[1]:
+            for i in range(image.shape[2]):
+                image[start_c:end_c, start_r: end_r, i] = image[start_c:end_c, start_r: end_r, i] @ matrix
+            start_r += LEN
+            end_r += LEN
+        start_c += LEN
+        end_c += LEN
+    return image
