@@ -52,7 +52,7 @@ def transform_image(image, matrix):
         start_r, end_r = 0, LEN
         while end_r <= size[1]:
             for i in range(image.shape[2]):
-                image[start_c:end_c, start_r: end_r, i] = image[start_c:end_c, start_r: end_r, i] @ matrix
+                image[start_c:end_c, start_r:end_r, i] = image[start_c:end_c, start_r:end_r, i] @ matrix
             start_r += LEN
             end_r += LEN
         start_c += LEN
