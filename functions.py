@@ -27,10 +27,10 @@ def make_transform_matrix(key):
     LEN = 100
     start, end = LEN, LEN*2
     encrypt_matrix = np.array(key[0:LEN])
-    encrypt_matrix = np.reshape(LEN, 1)
+    encrypt_matrix = encrypt_matrix.reshape(LEN, 1)
     
     while end <= 6000:
-        a_col = key[start:end]
+        a_col = np.array(key[start:end])
         tmp_mat = np.c_[encrypt_matrix, a_col]
         check = check_independent(tmp_mat)
         if check:
