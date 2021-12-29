@@ -4,6 +4,18 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 
+MOD = 257
+M_size = 600 # maximum 6000 
+
+def modular_inv(a, b, x, y):
+    d = a
+    if b != 0:
+        d = modular_inv(b, a%b, y, x)[0]
+        y[0] -= (a//b) * x[0]
+    else:
+        x[0], y[0] = 1, 0
+    return [d, x]
+
 def encrypt(image, password):
     key = convert_password_into_key(np.array([ord(c) - 45 for c in password]), len(password))
     matrix = make_transform_matrix(key)
@@ -18,9 +30,26 @@ def encrypt(image, password):
 def decrypt(image, password):
     key = convert_password_into_key(np.array([ord(c) - 45 for c in password]), len(password))
     matrix = make_transform_matrix(key)
+
+    DET = int(np.round(np.linalg.det(matrix)))
+    if DET % MOD == 0:
+        DET = 1
+    inv_det = modular_inv(DET, MOD, [0], [0])[1][0]
+    inv_det = (inv_det + MOD) % MOD
     matrix = np.linalg.inv(matrix)
-    print("inverse: ", matrix)
+    matrix *= DET
+    LEN = matrix.shape[0]
+    for i in range(LEN):
+        for j in range(LEN):
+            matrix[i, j] = int(np.round(matrix[i, j]))
+    matrix = matrix.astype('int64')
+
+    #print("inverse: ", matrix)
     image = np.array(Image.open(BytesIO(image)))
+
+    image = image.astype('int64')
+    image[:, :, :3] *= inv_det
+
     decrypted_image = transform_image(image, matrix)
     decrypted_image = Image.fromarray(decrypted_image)
     f = BytesIO()
@@ -32,35 +61,35 @@ def convert_password_into_key(password, length):
     size = M.shape
     for i in range(size[0]):
         for j in range(size[1]):
-                M[i,j] = 1
+                M[i,j] //= 40 
     
-    submatrix = M[:600, :length]
+    submatrix = M[:M_size, :length]
     # print("submatrix: ", submatrix @ password)
     return submatrix @ password
 
 
 def make_transform_matrix(key):
-    LEN = 1
+    LEN = 10
     start, end = LEN, LEN*2
     encrypt_matrix = np.array(key[0:LEN])
     encrypt_matrix = encrypt_matrix.reshape(LEN, 1)
     
-    while end <= 600:
+    while end <= M_size:
         a_col = np.array(key[start:end])
         tmp_mat = np.c_[encrypt_matrix, a_col]
         check = check_independent(tmp_mat)
         print("encrypted matrix: ", encrypt_matrix)
         # print(np.linalg.det(tmp_mat.transpose() @ tmp_mat))
         if not check:
-            print("tmp: ", tmp_mat)
+            #print("tmp: ", tmp_mat)
             encrypt_matrix = tmp_mat
         start += LEN
         end += LEN
     encrypt_matrix = encrypt_matrix.transpose() @ encrypt_matrix
-    print("encrypted matrix: ", encrypt_matrix)
-    print(np.linalg.det(encrypt_matrix))
+    #print("encrypted matrix: ", encrypt_matrix)
+    #print(np.linalg.det(encrypt_matrix))
     # print(encrypt_matrix)
-    print(encrypt_matrix.shape)
+    #print(encrypt_matrix.shape)
     return encrypt_matrix
 
 
@@ -71,27 +100,34 @@ def check_independent(matrix):
 
 
 def transform_image(image, matrix):
-    image = image.astype('float64')
+    image = image.astype('int64')
     size = image.shape
     LEN = matrix.shape[0]
     start_c, end_c, start_r, end_r = 0, LEN, 0, LEN
     while end_c <= size[0]:
         start_r, end_r = 0, LEN
         while end_r <= size[1]:
-            for i in range(image.shape[2]):
+            for i in range(3):
                 # print(image[start_c:end_c, start_r:end_r, i], matrix)
                 image[start_c:end_c, start_r:end_r, i] = image[start_c:end_c, start_r:end_r, i] @ matrix
             start_r += LEN
             end_r += LEN
         start_c += LEN
         end_c += LEN
-    print("before %")
-    print(image)
+    image[:, :, :3] %= MOD
+    # for i in range(size[0]):
+    #     for j in range(size[1]):
+    #         # only RGB, alpha neglected (hence .jpg is supported)
+    #         for k in range(3):
+    #             image[i, j, k] %= MOD
+    
+    #print("before %")
+    #print(image)
     # for i in range(size[0]):
     #     for j in range(size[1]):
     #         for k in range(size[2]):
     #             image[i,j,k] %= 256
-    print("after %")
-    print(image)
+    #print("after %")
+    #print(image)
     image = image.astype('uint8')
     return image
