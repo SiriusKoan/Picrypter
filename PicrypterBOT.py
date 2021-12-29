@@ -69,13 +69,15 @@ def Decrypt(update: Update, context: CallbackContext):
 def Password(update: Update, context: CallbackContext):
     global password
     password = update.message.text[10:].replace('\n', '')
+    update.message.reply_text(password)
 
 
 def initImage(update: Update, context: CallbackContext):
     global image
     global size
+
     image = context.bot.getFile(update.message.photo[-1].file_id) # the type is string PhotoType
-    # print(image,dir(image))
+    print(image,dir(image))
     # print(update.message.photo[-1], dir(update.message.photo[-1]))
     size = (update.message.photo[-1].width, update.message.photo[-1].height)
     image = requests.get(image.file_path).content

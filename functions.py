@@ -1,11 +1,11 @@
-from expand_matrix import M
+from mat import M
 from scipy.linalg import null_space
 import numpy as np
 from PIL import Image
 from io import BytesIO
 
 MOD = 257
-M_size = 600 # maximum 6000 
+M_size = 6000 # maximum 6000 
 
 def modular_inv(a, b, x, y):
     d = a
@@ -17,7 +17,7 @@ def modular_inv(a, b, x, y):
     return [d, x]
 
 def encrypt(image, password):
-    key = convert_password_into_key(np.array([ord(c) - 45 for c in password]), len(password))
+    key = convert_password_into_key(np.array([ord(c) - 47 for c in password]), len(password))
     matrix = make_transform_matrix(key)
     image = np.array(Image.open(BytesIO(image)))
     encrypted_image = transform_image(image, matrix)
@@ -28,7 +28,7 @@ def encrypt(image, password):
     return f.getvalue()
 
 def decrypt(image, password):
-    key = convert_password_into_key(np.array([ord(c) - 45 for c in password]), len(password))
+    key = convert_password_into_key(np.array([ord(c) - 47 for c in password]), len(password))
     matrix = make_transform_matrix(key)
 
     DET = int(np.round(np.linalg.det(matrix)))
@@ -36,15 +36,17 @@ def decrypt(image, password):
         DET = 1
     inv_det = modular_inv(DET, MOD, [0], [0])[1][0]
     inv_det = (inv_det + MOD) % MOD
+    print("inv_det: ", inv_det, "DET: ", DET)
     matrix = np.linalg.inv(matrix)
-    matrix *= DET
+    print("bef inverse: ", matrix)
+    # matrix *= DET
     LEN = matrix.shape[0]
     for i in range(LEN):
         for j in range(LEN):
-            matrix[i, j] = int(np.round(matrix[i, j]))
+            matrix[i, j] = int(np.round(matrix[i, j]*DET))
     matrix = matrix.astype('int64')
 
-    #print("inverse: ", matrix)
+    print("aft inverse: ", matrix)
     image = np.array(Image.open(BytesIO(image)))
 
     image = image.astype('int64')
@@ -57,37 +59,47 @@ def decrypt(image, password):
     return f.getvalue()
 
 def convert_password_into_key(password, length):
-    
-    size = M.shape
-    for i in range(size[0]):
-        for j in range(size[1]):
-                M[i,j] //= 40 
-    
+    #size = M.shape
+    # for i in range(size[0]):
+    #     for j in range(size[1]):
+    #             M[i,j] //= 20
+    #             M[i, j] += 1 
+    print(password)
+    # for i in range(length):
+    #     password[i]
     submatrix = M[:M_size, :length]
-    # print("submatrix: ", submatrix @ password)
-    return submatrix @ password
+    submatrix = submatrix @ password
+    for i in range(M_size):
+        submatrix[i] %= 10
+        submatrix[i] += 1
+    print("submatrix: ", submatrix)
+    return submatrix
 
 
 def make_transform_matrix(key):
-    LEN = 10
+    LEN = 1
     start, end = LEN, LEN*2
     encrypt_matrix = np.array(key[0:LEN])
+    print("key: ", key)
     encrypt_matrix = encrypt_matrix.reshape(LEN, 1)
-    
+    cnt = 1
     while end <= M_size:
         a_col = np.array(key[start:end])
         tmp_mat = np.c_[encrypt_matrix, a_col]
         check = check_independent(tmp_mat)
-        print("encrypted matrix: ", encrypt_matrix)
+        #print("encrypted matrix: ", encrypt_matrix)
         # print(np.linalg.det(tmp_mat.transpose() @ tmp_mat))
         if not check:
             #print("tmp: ", tmp_mat)
             encrypt_matrix = tmp_mat
+            cnt += 1
+        if cnt == 2:
+            break
         start += LEN
         end += LEN
     encrypt_matrix = encrypt_matrix.transpose() @ encrypt_matrix
-    #print("encrypted matrix: ", encrypt_matrix)
-    #print(np.linalg.det(encrypt_matrix))
+    print("encrypted matrix:\n", encrypt_matrix)
+    print(np.linalg.det(encrypt_matrix))
     # print(encrypt_matrix)
     #print(encrypt_matrix.shape)
     return encrypt_matrix
@@ -100,6 +112,7 @@ def check_independent(matrix):
 
 
 def transform_image(image, matrix):
+    print("before image:\n", image)
     image = image.astype('int64')
     size = image.shape
     LEN = matrix.shape[0]
@@ -114,6 +127,7 @@ def transform_image(image, matrix):
             end_r += LEN
         start_c += LEN
         end_c += LEN
+    print("middle image:\n", image)
     image[:, :, :3] %= MOD
     # for i in range(size[0]):
     #     for j in range(size[1]):
@@ -130,4 +144,5 @@ def transform_image(image, matrix):
     #print("after %")
     #print(image)
     image = image.astype('uint8')
+    print("after image:\n", image)
     return image
