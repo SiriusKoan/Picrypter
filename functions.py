@@ -5,7 +5,7 @@ from PIL import Image
 from io import BytesIO
 
 MOD = 257
-M_size = 6000 # maximum 6000 
+M_size = 600 # maximum 6000 
 
 def modular_inv(a, b, x, y):
     d = a
@@ -17,7 +17,7 @@ def modular_inv(a, b, x, y):
     return [d, x]
 
 def encrypt(image, password):
-    key = convert_password_into_key(np.array([ord(c) - 47 for c in password]), len(password))
+    key = convert_password_into_key(np.array([ord(c) - 45 for c in password]), len(password))
     matrix = make_transform_matrix(key)
     image = np.array(Image.open(BytesIO(image)))
     encrypted_image = transform_image(image, matrix)
@@ -28,7 +28,7 @@ def encrypt(image, password):
     return f.getvalue()
 
 def decrypt(image, password):
-    key = convert_password_into_key(np.array([ord(c) - 47 for c in password]), len(password))
+    key = convert_password_into_key(np.array([ord(c) - 45 for c in password]), len(password))
     matrix = make_transform_matrix(key)
 
     DET = int(np.round(np.linalg.det(matrix)))
@@ -37,16 +37,22 @@ def decrypt(image, password):
     inv_det = modular_inv(DET, MOD, [0], [0])[1][0]
     inv_det = (inv_det + MOD) % MOD
     print("inv_det: ", inv_det, "DET: ", DET)
-    matrix = np.linalg.inv(matrix)
-    print("bef inverse: ", matrix)
+
+    print("before inv:\n", matrix)
+    # inverse matrix
+    matrix = np.array([matrix[1, 1], -matrix[0, 1]], [-matrix[1, 0], matrix[0, 0]])
+    print("after inv:\n", matrix)
+
+    # matrix = np.linalg.inv(matrix)
+    #print("bef inverse: ", matrix)
     # matrix *= DET
-    LEN = matrix.shape[0]
-    for i in range(LEN):
-        for j in range(LEN):
-            matrix[i, j] = int(np.round(matrix[i, j]*DET))
+    # LEN = matrix.shape[0]
+    # for i in range(LEN):
+    #     for j in range(LEN):
+    #         matrix[i, j] = int(np.round(matrix[i, j]*DET))
     matrix = matrix.astype('int64')
 
-    print("aft inverse: ", matrix)
+    # print("aft inverse: ", matrix)
     image = np.array(Image.open(BytesIO(image)))
 
     image = image.astype('int64')
@@ -64,44 +70,51 @@ def convert_password_into_key(password, length):
     #     for j in range(size[1]):
     #             M[i,j] //= 20
     #             M[i, j] += 1 
-    print(password)
+    print("password: ", password)
     # for i in range(length):
     #     password[i]
     submatrix = M[:M_size, :length]
     submatrix = submatrix @ password
-    for i in range(M_size):
-        submatrix[i] %= 10
-        submatrix[i] += 1
+    # for i in range(M_size):
+    #     submatrix[i] %= 10
+    #     submatrix[i] += 1
     print("submatrix: ", submatrix)
     return submatrix
 
 
 def make_transform_matrix(key):
-    LEN = 1
-    start, end = LEN, LEN*2
-    encrypt_matrix = np.array(key[0:LEN])
-    print("key: ", key)
-    encrypt_matrix = encrypt_matrix.reshape(LEN, 1)
-    cnt = 1
-    while end <= M_size:
-        a_col = np.array(key[start:end])
-        tmp_mat = np.c_[encrypt_matrix, a_col]
-        check = check_independent(tmp_mat)
-        #print("encrypted matrix: ", encrypt_matrix)
-        # print(np.linalg.det(tmp_mat.transpose() @ tmp_mat))
-        if not check:
-            #print("tmp: ", tmp_mat)
-            encrypt_matrix = tmp_mat
-            cnt += 1
-        if cnt == 2:
-            break
-        start += LEN
-        end += LEN
+    # LEN = 1
+    # start, end = LEN, LEN*2
+    # encrypt_matrix = np.array(key[0:LEN])
+    # print("key: ", key)
+    # encrypt_matrix = encrypt_matrix.reshape(LEN, 1)
+    # cnt = 1
+    # while end <= M_size:
+    #     a_col = np.array(key[start:end])
+    #     tmp_mat = np.c_[encrypt_matrix, a_col]
+    #     check = check_independent(tmp_mat)
+    #     #print("encrypted matrix: ", encrypt_matrix)
+    #     # print(np.linalg.det(tmp_mat.transpose() @ tmp_mat))
+    #     if not check:
+    #         #print("tmp: ", tmp_mat)
+    #         encrypt_matrix = tmp_mat
+    #         cnt += 1
+    #     if cnt == 2:
+    #         break
+    #     start += LEN
+    #     end += LEN
+    # encrypt_matrix = encrypt_matrix.transpose() @ encrypt_matrix
+    # print("encrypted matrix:\n", encrypt_matrix)
+    # print(np.linalg.det(encrypt_matrix))
+    # # print(encrypt_matrix)
+    # #print(encrypt_matrix.shape)
+    col_1, col_2 = np.array(key), np.array(key)
+    col_1[0], col_2[1] = 0, 0
+    encrypt_matrix = np.c_[col_1, col_2]
     encrypt_matrix = encrypt_matrix.transpose() @ encrypt_matrix
     print("encrypted matrix:\n", encrypt_matrix)
-    print(np.linalg.det(encrypt_matrix))
-    # print(encrypt_matrix)
-    #print(encrypt_matrix.shape)
+    print("det: ", np.linalg.det(encrypt_matrix))
+    print("shape: ", encrypt_matrix.shape)
     return encrypt_matrix
 
 
