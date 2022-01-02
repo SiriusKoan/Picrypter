@@ -67,7 +67,8 @@ def Encrypt(update: Update, context: CallbackContext):
 
     image = encrypt(image,password) # encrypt it
     # init blank variable
-    context.bot.send_photo(chat_id=update.message.chat_id, photo=image)
+    open("after_encryption", "w").write(str(image))
+    context.bot.send_document(chat_id=update.message.chat_id, document=image)
 
     end(update, context)
 
@@ -88,7 +89,7 @@ def Decrypt(update: Update, context: CallbackContext):
     update.message.reply_text("Wait a moment...")
     # print("test")
     image = decrypt(image,password) # decrypt it
-    context.bot.send_photo(chat_id=update.message.chat_id, photo=image)
+    context.bot.send_document(chat_id=update.message.chat_id, document=image)
 
     # reset blank variable
     end(update, context)
@@ -120,12 +121,13 @@ def initPassword(update: Update, context: CallbackContext):
 def initImage(update: Update, context: CallbackContext):
     global image
     global size
-
-    image = context.bot.getFile(update.message.photo[-1].file_id) # the type is string PhotoType
+    print(update.message)
+    image = context.bot.getFile(update.message.document.file_id) # the type is string PhotoType
     print(image,dir(image))
     # print(update.message.photo[-1], dir(update.message.photo[-1]))
-    size = (update.message.photo[-1].width, update.message.photo[-1].height)
     image = requests.get(image.file_path).content
+    # context.bot.send_photo(chat_id=update.message.chat_id, photo=image)
+    open("before", "w").write(str(image))
     # print(image)
     # image = context.bot.getFile(update.message.photo[-1].file_id)
     # image = Image.open("test.jpg")
@@ -151,7 +153,7 @@ def main():
     updater.dispatcher.add_handler(CommandHandler("password",tellToSendPassword))
     updater.dispatcher.add_handler(CommandHandler("image",tellToSendImage))
     
-    updater.dispatcher.add_handler(MessageHandler(Filters.photo, initImage))
+    updater.dispatcher.add_handler(MessageHandler(Filters.document, initImage))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, initPassword))
 
 

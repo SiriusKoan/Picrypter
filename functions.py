@@ -10,7 +10,7 @@ M_size = 10 # maximum 6000
 def modular_inv(a, b, x, y):
     d = a
     if b != 0:
-        d = modular_inv(b, a%b, y, x)[0]
+        d = modular_inv(b, a % b, y, x)[0]
         y[0] -= (a//b) * x[0]
     else:
         x[0], y[0] = 1, 0
@@ -20,7 +20,8 @@ def encrypt(image, password):
     key = convert_password_into_key(np.array([ord(c) - 45 for c in password]), len(password))
     matrix = make_transform_matrix(key)
     image = np.array(Image.open(BytesIO(image)))
-    encrypted_image = transform_image(image, matrix)
+    encrypted_image = transform_image(image, matrix, 1)
+    print("enc:\n", encrypted_image)
     encrypted_image = Image.fromarray(encrypted_image)
     print(encrypted_image, dir(encrypted_image))
     f = BytesIO()
@@ -40,7 +41,10 @@ def decrypt(image, password):
 
     print("before inv:\n", matrix)
     # inverse matrix
+    matrix = matrix.astype('int64')
     matrix = np.array([[matrix[1, 1], -matrix[0, 1]], [-matrix[1, 0], matrix[0, 0]]])
+    matrix *= inv_det
+    matrix %= MOD
     print("after inv:\n", matrix)
 
     # matrix = np.linalg.inv(matrix)
@@ -50,15 +54,15 @@ def decrypt(image, password):
     # for i in range(LEN):
     #     for j in range(LEN):
     #         matrix[i, j] = int(np.round(matrix[i, j]*DET))
-    matrix = matrix.astype('int64')
+    
 
     # print("aft inverse: ", matrix)
     image = np.array(Image.open(BytesIO(image)))
+    print("dec:\n", image)
+    # image = image.astype('int64')
+    # image[:, :, :3] *= inv_det
 
-    image = image.astype('int64')
-    image[:, :, :3] *= inv_det
-
-    decrypted_image = transform_image(image, matrix)
+    decrypted_image = transform_image(image, matrix, 0)
     decrypted_image = Image.fromarray(decrypted_image)
     f = BytesIO()
     decrypted_image.save(f, "PNG")
@@ -124,12 +128,19 @@ def check_independent(matrix):
     return bool(ns.any())
 
 
-def transform_image(image, matrix):
+def transform_image(image, matrix, flag):
+    # flag == 1: encrypted
     print("before image:\n", image)
     image = image.astype('int64')
     size = image.shape
     LEN = matrix.shape[0]
     start_c, end_c, start_r, end_r = 0, LEN, 0, LEN
+    if not flag:
+        for i in range(size[0]):
+            for j in range(size[1]):
+                for k in range(3):
+                    if image[i, j, k] != 0:
+                        image[i, j ,k] += 1
     while end_c <= size[0]:
         start_r, end_r = 0, LEN
         while end_r <= size[1]:
@@ -141,12 +152,14 @@ def transform_image(image, matrix):
         start_c += LEN
         end_c += LEN
     print("middle image:\n", image)
-    image[:, :, :3] %= MOD
-    # for i in range(size[0]):
-    #     for j in range(size[1]):
-    #         # only RGB, alpha neglected (hence .jpg is supported)
-    #         for k in range(3):
-    #             image[i, j, k] %= MOD
+    # image[:, :, :3] %= MOD
+    for i in range(size[0]):
+        for j in range(size[1]):
+            # only RGB, alpha neglected (hence .jpg is supported)
+            for k in range(3):
+                image[i, j, k] %= MOD
+                if flag and image[i, j, k] > 0:
+                    image[i, j, k] -= 1
     
     #print("before %")
     #print(image)
