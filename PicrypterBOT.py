@@ -28,7 +28,7 @@ def start(update: Update, context: CallbackContext):
     /password - The random number sender and receiver choose.
     /encrypt - Encrypt your image according to password.
     /decrypt - Decrypt your image according to password.
-    Image : The image you long to encrypt.
+    Image file : The image you want to encrypt or decrypt.
     """)
 
     kb = [[KeyboardButton('/image')],
@@ -44,6 +44,8 @@ def start(update: Update, context: CallbackContext):
 
     
 def end(update: Update, context: CallbackContext):
+    global password
+    global image
     update.message.reply_text(update.message.chat.username + ", thanks you!")
     password = "0"
     image = Image.new('RGB',size = (200,200))
@@ -68,7 +70,7 @@ def Encrypt(update: Update, context: CallbackContext):
     image = encrypt(image,password) # encrypt it
     # init blank variable
     open("after_encryption", "w").write(str(image))
-    context.bot.send_document(chat_id=update.message.chat_id, document=image)
+    context.bot.send_document(chat_id = update.message.chat_id, document=image)
 
     end(update, context)
 
@@ -99,11 +101,11 @@ def Decrypt(update: Update, context: CallbackContext):
 # This part is to remind user to send password or image
 def tellToSendImage(update: Update, context: CallbackContext):
     if(image == default_image):
-        update.message.reply_text("Please send a image.")
+        update.message.reply_text("Please send the image file.")
 
 
 def tellToSendPassword(update: Update, context: CallbackContext):
-    if(password != "0"):
+    if(password == "0"):
         update.message.reply_text("Please enter the password.")
 
 
@@ -117,6 +119,8 @@ def initPassword(update: Update, context: CallbackContext):
 
         if(image == default_image):
            tellToSendImage( update, context ) 
+        else :
+            update.message.reply_text("/encrypt or /decrypt?")
 
 def initImage(update: Update, context: CallbackContext):
     global image
@@ -132,10 +136,14 @@ def initImage(update: Update, context: CallbackContext):
     # image = context.bot.getFile(update.message.photo[-1].file_id)
     # image = Image.open("test.jpg")
     # image.save("test.png","png")
-    update.message.reply_text("Receive the image.")
+    update.message.reply_text("Image received.")
     if(password == "0"):
         tellToSendPassword(update, context)
+    else :
+        update.message.reply_text("/encrypt or /decrypt?")
 
+def warningImage(update: Update, context: CallbackContext):
+    update.message.reply_text(update.message.chat.username,', please send the image file！')
 
 def Reset():
     global password
@@ -154,6 +162,7 @@ def main():
     updater.dispatcher.add_handler(CommandHandler("image",tellToSendImage))
     
     updater.dispatcher.add_handler(MessageHandler(Filters.document, initImage))
+    updater.dispatcher.add_handler(MessageHandler(Filters.photo, warningImage))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, initPassword))
 
 
