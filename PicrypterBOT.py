@@ -53,7 +53,7 @@ def Encrypt(update: Update, context: CallbackContext):
     global password
     if(password == "0"):
         update.message.reply_text("Warning! Fail to encrypt!")
-        update.message.reply_text("Please enter the password!")
+        tellToSendPassword(update,context)
         return
 
     if(image == default_image):
@@ -63,8 +63,8 @@ def Encrypt(update: Update, context: CallbackContext):
 
     update.message.reply_text("Wait a moment...")
 
-    image = encrypt(image,password) #encrypt it
-    #init blank variable
+    image = encrypt(image,password) # encrypt it
+    # init blank variable
     context.bot.send_photo(chat_id=update.message.chat_id, photo=image)
 
     end(update, context)
@@ -74,7 +74,7 @@ def Decrypt(update: Update, context: CallbackContext):
     global password
     if(password == "0"):
         update.message.reply_text("Warning! Fail to decrypt!")
-        update.message.reply_text("Please enter the password!")
+        tellToSendPassword(update,context)
         return
     if(image == default_image):
         update.message.reply_text("Warning! Fail to decrypt!")
@@ -82,11 +82,11 @@ def Decrypt(update: Update, context: CallbackContext):
         return
 
     update.message.reply_text("Wait a moment...")
-
-    image = decrypt(image,password) #decrypt it
+    # print("test")
+    image = decrypt(image,password) # decrypt it
     context.bot.send_photo(chat_id=update.message.chat_id, photo=image)
 
-    #reset blank variable
+    # reset blank variable
     end(update, context)
     
 
@@ -105,7 +105,7 @@ def initPassword(update: Update, context: CallbackContext):
     global image
     if(update.message.text[0] != '/'):
         password = update.message.text[:].replace('\n', '')
-        update.message.reply_text("Your password is : " + password)
+        update.message.reply_text("Your password is : " + password + ".")
 
         if(image == default_image):
            tellToSendImage( update, context ) 
@@ -121,9 +121,9 @@ def initImage(update: Update, context: CallbackContext):
     image = requests.get(image.file_path).content
     # print(image)
     # image = context.bot.getFile(update.message.photo[-1].file_id)
-    #image = Image.open("test.jpg")
-    #image.save("test.png","png")
-    update.message.reply_text("Receive the image!")
+    # image = Image.open("test.jpg")
+    # image.save("test.png","png")
+    update.message.reply_text("Receive the image.")
     if(password == "0"):
         tellToSendPassword(update, context)
 
