@@ -53,11 +53,13 @@ def Encrypt(update: Update, context: CallbackContext):
     global password
     if(password == "0"):
         update.message.reply_text("Warning! Fail to encrypt!")
+        update.message.reply_text("Remember to press to /encrypt again!\n")
         tellToSendPassword(update,context)
         return
 
     if(image == default_image):
         update.message.reply_text("Warning! Fail to encrypt!")
+        update.message.reply_text("Remember to press to /encrypt again!\n")
         tellToSendImage(update, context)
         return
 
@@ -73,11 +75,13 @@ def Decrypt(update: Update, context: CallbackContext):
     global image
     global password
     if(password == "0"):
-        update.message.reply_text("Warning! Fail to decrypt!")
+        update.message.reply_text("Warning! Fail to decrypt!\n")
+        update.message.reply_text("Remember to press to /decrypt again!\n")
         tellToSendPassword(update,context)
         return
     if(image == default_image):
         update.message.reply_text("Warning! Fail to decrypt!")
+        update.message.reply_text("Remember to press to /decrypt again!\n")
         tellToSendImage(update, context)
         return
 
@@ -93,10 +97,13 @@ def Decrypt(update: Update, context: CallbackContext):
 
 # This part is to remind user to send password or image
 def tellToSendImage(update: Update, context: CallbackContext):
-    update.message.reply_text("Please send a image.")
+    if(image == default_image):
+        update.message.reply_text("Please send a image.")
+
 
 def tellToSendPassword(update: Update, context: CallbackContext):
-    update.message.reply_text("Please enter the password.")
+    if(password != "0"):
+        update.message.reply_text("Please enter the password.")
 
 
 # This part is to init password or image
