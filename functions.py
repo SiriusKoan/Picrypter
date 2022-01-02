@@ -5,7 +5,7 @@ from PIL import Image
 from io import BytesIO
 
 MOD = 257
-M_size = 600 # maximum 6000 
+M_size = 10 # maximum 6000 
 
 def modular_inv(a, b, x, y):
     d = a
@@ -40,7 +40,7 @@ def decrypt(image, password):
 
     print("before inv:\n", matrix)
     # inverse matrix
-    matrix = np.array([matrix[1, 1], -matrix[0, 1]], [-matrix[1, 0], matrix[0, 0]])
+    matrix = np.array([[matrix[1, 1], -matrix[0, 1]], [-matrix[1, 0], matrix[0, 0]]])
     print("after inv:\n", matrix)
 
     # matrix = np.linalg.inv(matrix)
