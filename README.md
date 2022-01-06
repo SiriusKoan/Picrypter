@@ -43,7 +43,7 @@ This telegram bot is devised to help people **encrypt and decrypt confidential p
 
 2. Press the `/image` button and send the **image file**.
 
-   *Note* : Remember to press `Send as File` and **DO NOT** check *compression*.
+   *Note*: Remember to press `Send as File` and **DO NOT** check *compression*.
 
 3. Press the `/password` button and enter the password.
 
@@ -59,7 +59,9 @@ This telegram bot is devised to help people **encrypt and decrypt confidential p
 
      Wait about 5 ~ 10 seconds, the bot will send back the encrypted / decrypted image.
 
-     *Note* : If there is no response for a too long period of time, *Time Out* may have occurred due to some server error or the file size is overwhelming. Please do *step 2 to 4* again or try another smaller image (or compress it before hand). 
+     *Note*: If there is no response for a too long period of time, *Time Out* may have occurred due to some server error or the file size is overwhelming. Please do *step 2 to 4* again or try another smaller image . 
+     
+     *Note*: Should your image be too large, you can compress it via telegram first (send it to someone with *compression* checked). Yet remember **NOT** to check *compression* while sending your image to the bot!
 
 5. Get the Image File!
 
@@ -72,8 +74,8 @@ This telegram bot is devised to help people **encrypt and decrypt confidential p
 1. Expand user-specified password into a long key by ***a large, random generated matrix (6000 by 100)***.
 2. The key is then divided into several vectors, with each vector comprising 10 entries, acting as *columns* for a new matrix ***A***.
 3. Each vector of the key will undergo *check of linear independence*, from the beginning: If the current vector is linearly independent with all the preceding vectors, it will be added into ***A***, otherwise discarded.
-4. ***A*** has been constructed !
-5. Compute ***E = A^T A***, where ***E*** is invertible for ***A*** has *linearly independent* columns !
+4. ***A*** has been constructed!
+5. Compute ***E = A^T A***, where ***E*** is invertible for ***A*** has *linearly independent* columns!
 6. ***E*** is then used to encrypt and decrypt images ! (***E*** depends on user-specified password.)
 
 7. For more details, please refer to `technique_specifics.pdf`.
