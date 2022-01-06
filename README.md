@@ -17,11 +17,11 @@
 
 ## Description
 
-This telegram bot (@Picrypter_bot) is devised to help people **encrypt and decrypt confidential photos** with user-specified passwords, through *linear algebra* techniques.
+This telegram bot is devised to help people **encrypt and decrypt confidential photos** with user-specified passwords, through *linear algebra* techniques.
 
 
 
-## Bot Introduction (@Picrypter_bot)
+## Bot Introduction
 
 `/start` : Show greeting and the customized keyboard.
 
