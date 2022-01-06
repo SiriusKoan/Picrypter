@@ -61,5 +61,5 @@ This telegram bot is devised to help people **encrypt and decrypt confidential p
 
      *Note* : If there is no response for a too long period of time, *Time Out* may have occurred due to some server error or the file size is overwhelming. Please do *step 2 to 4* again or try another smaller image (or compress it before hand). 
 
- 	5. Get the Image File!
- 	6. Type in `/end` to clear your data.
+5. Get the Image File!
+6. Type in `/end` to clear your data.
