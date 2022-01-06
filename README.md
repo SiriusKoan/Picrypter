@@ -62,4 +62,18 @@ This telegram bot is devised to help people **encrypt and decrypt confidential p
      *Note* : If there is no response for a too long period of time, *Time Out* may have occurred due to some server error or the file size is overwhelming. Please do *step 2 to 4* again or try another smaller image (or compress it before hand). 
 
 5. Get the Image File!
+
 6. Type in `/end` to clear your data.
+
+
+
+## What Have We Done Behind This Bot
+
+1. Expand user-specified password into a long key by ***a large, random generated matrix (6000 by 100)***.
+2. The key is then divided into several vectors, with each vector comprising 10 entries, acting as *columns* for a new matrix ***A***.
+3. Each vector of the key will undergo *check of linear independence*, from the beginning: If the current vector is linearly independent with all the preceding vectors, it will be added into ***A***, otherwise discarded.
+4. ***A*** has been constructed !
+5. Compute ***E = A^T A***, where ***E*** is invertible for ***A*** has *linearly independent* columns !
+6. ***E*** is then used to encrypt and decrypt images ! (***E*** depends on user-specified password.)
+
+7. For more details, please refer to `technique_specifics.pdf`.
