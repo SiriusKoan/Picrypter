@@ -15,13 +15,13 @@
 
 
 
-## Functionality
+## Description
 
-This telegram bot is devised to help people **encrypt and decrypt confidential photos** with user-specified passwords, through *linear algebra* techniques.
+This telegram bot (@Picrypter_bot) is devised to help people **encrypt and decrypt confidential photos** with user-specified passwords, through *linear algebra* techniques.
 
 
 
-## Bot Introduction
+## Bot Introduction (@Picrypter_bot)
 
 `/start` : Show greeting and the customized keyboard.
 
@@ -78,4 +78,4 @@ This telegram bot is devised to help people **encrypt and decrypt confidential p
 5. Compute ***E = A^T A***, where ***E*** is invertible for ***A*** has *linearly independent* columns!
 6. ***E*** is then used to encrypt and decrypt images ! (***E*** depends on user-specified password.)
 
-7. For more details, please refer to `technique_specifics.pdf`.
+7. For more details, please refer to [technique_specifics.pdf](https://github.com/SiriusKoan/NYCU-LA-final-project/blob/main/technique_specifics.pdf).
