@@ -69,7 +69,7 @@ This telegram bot is devised to help people **encrypt and decrypt confidential p
 
 
 
-## What Have We Done Behind This Bot
+## What We Have Done Behind This Bot
 
 1. Expand user-specified password into a long key by ***a large, random generated matrix (6000 by 100)***.
 2. The key is then divided into several vectors, with each vector comprising 10 entries, acting as *columns* for a new matrix ***A***.
